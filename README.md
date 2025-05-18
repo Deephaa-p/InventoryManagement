@@ -23,4 +23,6 @@ DB_PASSWORD=""
 DB_HOST=""
 DB_PORT=""
 
+- add some seed values to the schema items
+
 - to navigate to the UI run localhost:3000 on browser
