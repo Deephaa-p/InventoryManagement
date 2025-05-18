@@ -61,7 +61,6 @@ class CategoryListCreateView(APIView):
 
     def get(self, request):
         # Try to get data from cache
-        print('helloooooooo')
         cached_categories = cache.get('all_categories')
         
         if cached_categories is None:
