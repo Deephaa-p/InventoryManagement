@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Inventory List</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../../../css/style.css" />
+    <style></style>
+  </head>
+  <body class="container">
+    <div class="page-header">
+      <h2>Inventory List</h2>
+      <div class="inventory-list-btns">
+        <button type="button" id="summaryBtn">Summary</button>
+        <button type="button" id="addItemBtn">Add Item</button>
+      </div>
+    </div>
+    <table id="inventoryTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data will be injected here -->
+      </tbody>
+    </table>
+
+    <!-- Confirmation Modal for Delete -->
+    <div id="modalBackdrop" class="modal-backdrop" style="display: none">
+      <div class="modal">
+        <div id="modalMessage">Are you sure you want to delete this item?</div>
+        <button class="confirm" id="confirmDeleteBtn">Yes</button>
+        <button class="cancel" id="cancelDeleteBtn">No</button>
+      </div>
+    </div>
+
+    <!-- Modal for Add/Remove Quantity -->
+    <div
+      id="quantityModalBackdrop"
+      class="modal-backdrop"
+      style="display: none"
+    >
+      <div class="modal">
+        <div id="quantityModalMessage"></div>
+        <input
+          type="number"
+          id="quantityInput"
+          min="1"
+          placeholder="Quantity"
+        />
+        <div class="modal-error" id="quantityModalError"></div>
+        <button class="confirm" id="confirmQuantityBtn">Save</button>
+        <button class="cancel" id="cancelQuantityBtn">Cancel</button>
+      </div>
+    </div>
+
+    <script type="module">
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.location.href = "../../auth/login.html";
+      }
+
+      import { BASE_API_URL } from "../../../js/config.js";
+
+      // Redirect to add item page on button click
+      document.getElementById("addItemBtn").addEventListener("click", () => {
+        window.location.href = "./add.html";
+      });
+
+      // Redirect to summary page
+      document.getElementById("summaryBtn").addEventListener("click", () => {
+        window.location.href = "./summary.html";
+      });
+
+      // Mock data fallback
+      let mockData = [
+        { id: 1, name: "Laptop", quantity: 10, value: 800 },
+        { id: 2, name: "Monitor", quantity: 5, value: 150 },
+        { id: 3, name: "Keyboard", quantity: 20, value: 25 },
+      ];
+
+      async function fetchInventory() {
+        try {
+          const response = await fetch(`${BASE_API_URL}/inventory`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "true",
+            },
+          });
+          if (!response.ok) throw new Error("API error");
+          return await response.json();
+        } catch (error) {
+          console.log("Error: ", error);
+          return mockData;
+        }
+      }
+
+      function renderTable(data) {
+        const tbody = document.querySelector("#inventoryTable tbody");
+        tbody.innerHTML = "";
+        data.forEach((item) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${item.name}</td>
+            <td>${item.quantity}</td>
+            <td>${item.price}</td>
+            <td>
+              <button class="action-btn add-btn" data-id="${item.id}">Add</button>
+              <button class="action-btn remove-btn" data-id="${item.id}">Remove</button>
+              <button class="action-btn edit-btn" data-id="${item.id}">Edit</button>
+              <button class="action-btn delete-btn" data-id="${item.id}">Delete</button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        // Attach event listeners for edit and delete
+        tbody.querySelectorAll(".edit-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const id = btn.getAttribute("data-id");
+            window.location.href = `./edit.html?id=${id}`;
+          });
+        });
+
+        tbody.querySelectorAll(".delete-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const id = btn.getAttribute("data-id");
+            showDeleteModal(id);
+          });
+        });
+
+        // Add/Remove buttons
+        tbody.querySelectorAll(".add-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const id = btn.getAttribute("data-id");
+            showQuantityModal(id, "ADD");
+          });
+        });
+        tbody.querySelectorAll(".remove-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const id = btn.getAttribute("data-id");
+            showQuantityModal(id, "REMOVE");
+          });
+        });
+      }
+
+      // Modal logic for delete
+      let itemIdToDelete = null;
+      function showDeleteModal(id) {
+        itemIdToDelete = id;
+        document.getElementById("modalBackdrop").style.display = "flex";
+      }
+      function hideDeleteModal() {
+        itemIdToDelete = null;
+        document.getElementById("modalBackdrop").style.display = "none";
+      }
+
+      document
+        .getElementById("confirmDeleteBtn")
+        .addEventListener("click", async () => {
+          if (!itemIdToDelete) return;
+          try {
+            const response = await fetch(
+              `${BASE_API_URL}/inventory/${itemIdToDelete}`,
+              {
+                method: "DELETE",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            if (!response.ok) throw new Error("API error");
+          } catch (error) {
+            console.log("Error: ", error);
+
+            mockData = mockData.filter((item) => item.id != itemIdToDelete);
+          }
+          hideDeleteModal();
+          fetchInventory().then(renderTable);
+        });
+
+      document
+        .getElementById("cancelDeleteBtn")
+        .addEventListener("click", () => {
+          hideDeleteModal();
+        });
+
+      // Modal logic for add/remove quantity
+      let itemIdForQuantity = null;
+      let quantityAction = null;
+
+      function showQuantityModal(id, action) {
+        itemIdForQuantity = id;
+        quantityAction = action;
+        document.getElementById("quantityInput").value = "";
+        document.getElementById("quantityModalError").textContent = "";
+        document.getElementById("quantityModalMessage").textContent =
+          action === "ADD"
+            ? "Enter quantity to add:"
+            : "Enter quantity to remove:";
+        document.getElementById("quantityModalBackdrop").style.display = "flex";
+      }
+      function hideQuantityModal() {
+        itemIdForQuantity = null;
+        quantityAction = null;
+        document.getElementById("quantityModalBackdrop").style.display = "none";
+      }
+
+      document
+        .getElementById("confirmQuantityBtn")
+        .addEventListener("click", async () => {
+          const qty = Number(document.getElementById("quantityInput").value);
+          const errorDiv = document.getElementById("quantityModalError");
+          if (!qty || qty < 1) {
+            errorDiv.textContent = "Please enter a valid quantity.";
+            return;
+          }
+          errorDiv.textContent = "";
+          try {
+            const response = await fetch(
+              `${BASE_API_URL}/inventory/add-remove-stock`,
+              {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  item_id: itemIdForQuantity,
+                  change_amount: qty,
+                  action: quantityAction,
+                }),
+              }
+            );
+            if (!response.ok) throw new Error("API error");
+          } catch (error) {
+            console.log("Error: ", error);
+            // Update mockData for demo
+            mockData = mockData.map((item) => {
+              if (item.id == itemIdForQuantity) {
+                if (quantityAction === "ADD") item.quantity += qty;
+                if (quantityAction === "REMOVE")
+                  item.quantity = Math.max(0, item.quantity - qty);
+              }
+              return item;
+            });
+          }
+          hideQuantityModal();
+          fetchInventory().then(renderTable);
+        });
+
+      document
+        .getElementById("cancelQuantityBtn")
+        .addEventListener("click", () => {
+          hideQuantityModal();
+        });
+
+      // Initial render
+      fetchInventory().then(renderTable);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,375 @@
+/* Reset some default styles */
+body,
+h2,
+form,
+input,
+button,
+p {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background: #f6f8fa;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.container-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+h2 {
+  margin-bottom: 24px;
+  color: #22223b;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+form {
+  background: #fff;
+  padding: 32px 28px 24px 28px;
+  border-radius: 10px;
+  box-shadow: 0 2px 16px rgba(34, 34, 59, 0.08);
+  display: flex;
+  flex-direction: column;
+  min-width: 320px;
+  max-width: 350px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  border: 1px solid #c9c9c9;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: border 0.2s;
+  outline: none;
+}
+
+input:focus {
+  border-color: #4f8cff;
+}
+
+.error {
+  color: #e63946;
+  font-size: 0.92rem;
+  margin-bottom: 10px;
+  min-height: 18px;
+}
+
+button[type="submit"] {
+  margin-top: 10px;
+  padding: 10px 0;
+  background: #4f8cff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.08rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button[type="submit"]:hover {
+  background: #2563eb;
+}
+
+button[type="button"] {
+  margin-top: 10px;
+  padding: 10px 10px;
+  background: #4f8cff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.08rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button[type="button"]:hover {
+  background: #2563eb;
+}
+
+p {
+  margin-top: 18px;
+  font-size: 1rem;
+  color: #22223b;
+}
+
+a {
+  color: #4f8cff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Common */
+
+.page-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.container {
+  width: 90%;
+  margin: auto;
+}
+
+/* Add/override for inventory add form */
+form textarea,
+form select,
+form input[type="number"] {
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  border: 1px solid #c9c9c9;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: border 0.2s;
+  outline: none;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 38px;
+}
+
+form textarea:focus,
+form select:focus,
+form input[type="number"]:focus {
+  border-color: #4f8cff;
+}
+
+form select {
+  background: #fff;
+}
+
+form > *:not(:last-child) {
+  margin-bottom: 8px;
+}
+
+form button[type="submit"] {
+  margin-top: 16px;
+}
+
+@media (max-width: 500px) {
+  form {
+    min-width: unset;
+    max-width: 100%;
+    padding: 18px 8px 14px 8px;
+  }
+}
+
+/* Inventory List */
+table {
+  width: 100%;
+  margin: 32px auto;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(34, 34, 59, 0.07);
+  overflow: hidden;
+}
+th,
+td {
+  padding: 14px 18px;
+  text-align: left;
+}
+th {
+  background: #4f8cff;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+tr:nth-child(even) {
+  background: #f6f8fa;
+}
+tr:hover {
+  background: #e3eefd;
+}
+h2 {
+  text-align: center;
+  margin-top: 32px;
+  color: #22223b;
+}
+
+.action-btn {
+  padding: 6px 14px;
+  margin-right: 6px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.98rem;
+  transition: background 0.2s;
+}
+.edit-btn {
+  background: #4f8cff;
+  color: #fff;
+}
+.edit-btn:hover {
+  background: #2563eb;
+}
+.delete-btn {
+  background: #e63946;
+  color: #fff;
+}
+.delete-btn:hover {
+  background: #b71c1c;
+}
+/* Modal styles */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(34, 34, 59, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal {
+  background: #fff;
+  padding: 28px 24px 18px 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 16px rgba(34, 34, 59, 0.13);
+  min-width: 260px;
+  text-align: center;
+}
+.modal button {
+  margin: 12px 10px 0 10px;
+  padding: 7px 18px;
+  border-radius: 4px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.modal .confirm {
+  background: #4f8cff;
+  color: #fff;
+}
+.modal .cancel {
+  background: #f6f8fa;
+  color: #22223b;
+}
+.modal .confirm:hover {
+  background: #2563eb;
+}
+.modal .cancel:hover {
+  background: #e0e0e0;
+}
+
+.modal input[type="number"] {
+  width: 120px;
+  margin-top: 12px;
+  padding: 7px 10px;
+  border-radius: 4px;
+  border: 1px solid #c9c9c9;
+  font-size: 1rem;
+}
+.modal .modal-error {
+  color: #e63946;
+  font-size: 0.95rem;
+  margin-top: 6px;
+  min-height: 18px;
+}
+
+/* Back Button */
+
+.back-btn {
+  background: #f6f8fa;
+  color: #22223b;
+  border: none;
+  border-radius: 5px;
+  padding: 7px 18px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-bottom: 18px;
+  transition: background 0.2s;
+}
+.back-btn:hover {
+  background: #e0e0e0;
+}
+
+.action-btn {
+  padding: 6px 14px;
+  margin-right: 6px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.98rem;
+  transition: background 0.2s;
+}
+.edit-btn {
+  background: #4f8cff;
+  color: #fff;
+}
+.edit-btn:hover {
+  background: #2563eb;
+}
+.delete-btn {
+  background: #e63946;
+  color: #fff;
+}
+.delete-btn:hover {
+  background: #b71c1c;
+}
+.add-btn {
+  background: #43aa8b;
+  color: #fff;
+}
+.add-btn:hover {
+  background: #2d6a4f;
+}
+.remove-btn {
+  background: #f9c74f;
+  color: #22223b;
+}
+.remove-btn:hover {
+  background: #f9844a;
+}
+
+/* Summary */
+.summary-metrics {
+  width: 90%;
+  margin: 32px auto 0 auto;
+  display: flex;
+  gap: 32px;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: 1.1rem;
+}
+.summary-metrics span {
+  background: #f6f8fa;
+  padding: 12px 22px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #22223b;
+  box-shadow: 0 2px 8px rgba(34, 34, 59, 0.06);
+}
+
+.section-title {
+  margin-top: 32px;
+  color: #22223b;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.inventory-list-btns {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}

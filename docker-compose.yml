@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    container_name: inventory-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - app_network
+
+  db:
+    image: postgres:15
+    container_name: inventory-db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - app_network
+
+  # backend:
+  #   build: ./backend
+  #   container_name: inventory-be-app
+  #   command: gunicorn InventoryManagement.wsgi:application --bind 0.0.0.0:8000
+  #   volumes:
+  #     - ./backend:/app
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     - db
+  #     - redis
+  #   environment:
+  #     - DEBUG=1
+  #     - DB_NAME=postgres
+  #     - DB_USER=postgres
+  #     - DB_PASSWORD=postgres
+  #     - DB_HOST=db
+  #     - DB_PORT=5432
+  #   networks:
+  #     - app_network
+
+  frontend: 
+    build: ./frontend
+    container_name: inventory-fe-app
+    ports:
+      - "3000:80"
+    networks:
+      - app_network
+
+volumes:
+  redis_data:
+  postgres_data:
+
+networks:
+  app_network:
+    driver: bridge

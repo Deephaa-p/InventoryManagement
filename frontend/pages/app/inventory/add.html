@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Add Inventory Item</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../../../css/style.css" />
+  </head>
+  <body class="container-center">
+    <button type="button" class="back-btn" id="backBtn">&#8592; Back</button>
+
+    <div class="page-header">
+      <h2>Add Inventory Item</h2>
+    </div>
+    <form id="addInventoryForm">
+      <input type="text" id="name" placeholder="Name" />
+      <div class="error" id="nameError"></div>
+
+      <textarea id="description" placeholder="Description"></textarea>
+      <div class="error" id="descriptionError"></div>
+
+      <input type="number" id="quantity" placeholder="Quantity" min="1" />
+      <div class="error" id="quantityError"></div>
+
+      <input type="number" id="price" placeholder="Price" min="0" step="0.01" />
+      <div class="error" id="priceError"></div>
+
+      <select id="category">
+        <option value="">Select Category</option>
+      </select>
+      <div class="error" id="categoryError"></div>
+
+      <button type="submit">Add Item</button>
+    </form>
+
+    <script type="module">
+      let token = localStorage.getItem("token");
+      if (!token) {
+        window.location.href = "../../auth/login.html";
+      }
+      import { BASE_API_URL } from "../../../js/config.js";
+
+      const mockCategories = [
+        { id: 1, name: "Electronics" },
+        { id: 2, name: "Furniture" },
+        { id: 3, name: "Stationery" },
+      ];
+
+      // Back button logic
+      document.getElementById("backBtn").addEventListener("click", () => {
+        window.location.href = "./list.html";
+      });
+
+      async function fetchCategories() {
+        try {
+          const response = await fetch(`${BASE_API_URL}/categories`, {
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "true",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (!response.ok) throw new Error("API error");
+          const jsonData = await response.json();
+          return jsonData.data;
+        } catch (error) {
+          console.log("Error: ", error);
+          return mockCategories;
+        }
+      }
+
+      function populateCategories(categories) {
+        const select = document.getElementById("category");
+        categories.forEach((cat) => {
+          const option = document.createElement("option");
+          option.value = cat.id;
+          option.textContent = cat.name;
+          select.appendChild(option);
+        });
+      }
+
+      fetchCategories().then(populateCategories);
+
+      document
+        .getElementById("addInventoryForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          // Clear previous errors
+          document
+            .querySelectorAll(".error")
+            .forEach((el) => (el.textContent = ""));
+
+          const name = document.getElementById("name");
+          const description = document.getElementById("description");
+          const quantity = document.getElementById("quantity");
+          const price = document.getElementById("price");
+          const category = document.getElementById("category");
+
+          let valid = true;
+
+          if (!name.value.trim()) {
+            document.getElementById("nameError").textContent =
+              "Name is required";
+            valid = false;
+          }
+          if (!description.value.trim()) {
+            document.getElementById("descriptionError").textContent =
+              "Description is required";
+            valid = false;
+          }
+          if (!quantity.value || Number(quantity.value) < 1) {
+            document.getElementById("quantityError").textContent =
+              "Quantity must be at least 1";
+            valid = false;
+          }
+          if (!price.value || Number(price.value) < 0) {
+            document.getElementById("priceError").textContent =
+              "Price must be 0 or more";
+            valid = false;
+          }
+          if (!category.value) {
+            document.getElementById("categoryError").textContent =
+              "Category is required";
+            valid = false;
+          }
+
+          if (valid) {
+            const item = {
+              name: name.value.trim(),
+              description: description.value.trim(),
+              quantity: Number(quantity.value),
+              price: Number(price.value),
+              category: category.value,
+            };
+
+            try {
+              const response = await fetch(`${BASE_API_URL}/inventory`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(item),
+              });
+
+              if (response.ok) {
+                alert("Item added successfully!");
+                window.location.href = "./list.html";
+              } else {
+                const data = await response.json();
+                alert(data.message || "Failed to add item.");
+              }
+            } catch (error) {
+              console.log("Error: ", error);
+              alert("An error occurred. Please try again.");
+            }
+          }
+        });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+  </head>
+  <body class="container-center">
+    <h2>Register</h2>
+    <form id="registerForm">
+      <input type="text" id="firstname" placeholder="First Name" />
+      <div class="error" id="firstnameError"></div>
+
+      <input type="text" id="lastname" placeholder="Last Name" />
+      <div class="error" id="lastnameError"></div>
+
+      <input type="email" id="email" placeholder="Email" />
+      <div class="error" id="emailError"></div>
+
+      <input type="password" id="password" placeholder="Password" />
+      <div class="error" id="passwordError"></div>
+
+      <input
+        type="password"
+        id="confirmpassword"
+        placeholder="Confirm Password"
+      />
+      <div class="error" id="confirmpasswordError"></div>
+
+      <button type="submit">Register</button>
+    </form>
+
+    <p>Already have an account? <a href="login.html">Login</a></p>
+
+    <script type="module">
+      import { BASE_API_URL } from "../../../js/config.js";
+
+      document
+        .getElementById("registerForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const firstname = document.getElementById("firstname");
+          const lastname = document.getElementById("lastname");
+          const email = document.getElementById("email");
+          const password = document.getElementById("password");
+          const confirmpassword = document.getElementById("confirmpassword");
+
+          let valid = true;
+
+          document
+            .querySelectorAll(".error")
+            .forEach((el) => (el.textContent = ""));
+
+          if (!firstname.value.trim()) {
+            document.getElementById("firstnameError").textContent =
+              "First name is required";
+            valid = false;
+          }
+
+          if (!lastname.value.trim()) {
+            document.getElementById("lastnameError").textContent =
+              "Last name is required";
+            valid = false;
+          }
+
+          const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!email.value.trim() || !emailPattern.test(email.value)) {
+            document.getElementById("emailError").textContent =
+              "Valid email required";
+            valid = false;
+          }
+
+          if (password.value.length < 6) {
+            document.getElementById("passwordError").textContent =
+              "Password must be at least 6 characters";
+            valid = false;
+          }
+
+          if (password.value !== confirmpassword.value) {
+            document.getElementById("confirmpasswordError").textContent =
+              "Passwords do not match";
+            valid = false;
+          }
+
+          if (valid) {
+            const user = {
+              first_name: firstname.value.trim(),
+              last_name: lastname.value.trim(),
+              email: email.value.trim(),
+              password: password.value,
+              confirm_password: confirmpassword.value,
+            };
+
+            try {
+              const response = await fetch(`${BASE_API_URL}/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(user),
+              });
+
+              if (response.ok) {
+                alert("Registration successful! Redirecting to login...");
+                window.location.href = "login.html";
+              } else {
+                const data = await response.json();
+                alert(data.message || "Registration failed. Please try again.");
+              }
+            } catch (error) {
+              console.log("Error: ", error);
+              alert("An error occurred. Please try again.");
+            }
+          }
+        });
+    </script>
+  </body>
+</html>

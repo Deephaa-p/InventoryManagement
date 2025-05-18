@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+  </head>
+  <body class="container-center">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="Email" />
+      <div class="error" id="emailError"></div>
+
+      <input type="password" id="password" placeholder="Password" />
+      <div class="error" id="passwordError"></div>
+
+      <button type="submit">Login</button>
+    </form>
+
+    <p>Don't have an account? <a href="register.html">Register</a></p>
+
+    <script type="module">
+      import { BASE_API_URL } from "../../../js/config.js";
+
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const email = document.getElementById("email");
+          const password = document.getElementById("password");
+          let valid = true;
+
+          document
+            .querySelectorAll(".error")
+            .forEach((el) => (el.textContent = ""));
+
+          if (!email.value.trim()) {
+            document.getElementById("emailError").textContent =
+              "Email is required";
+            valid = false;
+          }
+
+          if (!password.value) {
+            document.getElementById("passwordError").textContent =
+              "Password is required";
+            valid = false;
+          }
+
+          if (valid) {
+            try {
+              const response = await fetch(`${BASE_API_URL}/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  email: email.value.trim(),
+                  password: password.value,
+                }),
+              });
+
+              if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+                if (data.tokens) {
+                  localStorage.setItem("token", data.tokens.access);
+                }
+                alert("Login successful!");
+                window.location.href = "../app/inventory/list.html";
+              } else {
+                const data = await response.json();
+                document.getElementById("passwordError").textContent =
+                  data.message || "Invalid email or password";
+              }
+            } catch (error) {
+              console.log("Error: ", error);
+              document.getElementById("passwordError").textContent =
+                "An error occurred. Please try again.";
+            }
+          }
+        });
+    </script>
+  </body>
+</html>

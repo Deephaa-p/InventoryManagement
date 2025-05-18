@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Inventory Summary</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../../../css/style.css" />
+  </head>
+
+  <body class="container">
+    <div class="page-header">
+      <h2>Inventory Summary</h2>
+      <button type="button" id="inventoryListBtn">Inventory List</button>
+    </div>
+
+    <div class="summary-metrics" id="summaryMetrics">
+      <!-- Metrics will be injected here -->
+    </div>
+
+    <div class="section-title">Items Low in Stock</div>
+    <table id="summaryTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Quantity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data will be injected here -->
+      </tbody>
+    </table>
+    <script type="module">
+      import { BASE_API_URL } from "../../../js/config.js";
+
+      // Redirect to add item page on button click
+      document
+        .getElementById("inventoryListBtn")
+        .addEventListener("click", () => {
+          window.location.href = "./list.html";
+        });
+
+      const token = localStorage.getItem("token");
+
+      // Redirect to login if not authenticated
+      if (!token) {
+        window.location.href = "../../auth/login.html";
+      }
+
+      // Mock data fallback
+      const mockData = {
+        total_items_count: 15,
+        total_value: 150,
+        items_low_in_stock: [{ name: "mobile", quantity: 5 }],
+      };
+
+      async function fetchSummary() {
+        try {
+          const response = await fetch(`${BASE_API_URL}/inventory/summary`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "ngrok-skip-browser-warning": "true",
+            },
+          });
+          if (!response.ok) throw new Error("API error");
+          return await response.json();
+        } catch (e) {
+          return mockData;
+        }
+      }
+
+      function renderSummary(data) {
+        // Metrics
+        const metricsDiv = document.getElementById("summaryMetrics");
+        metricsDiv.innerHTML = `
+          <span>Total Items: ${data.total_items_count}</span>
+          <span>Total Value: $${data.total_value}</span>
+        `;
+
+        // Table
+        const tbody = document.querySelector("#summaryTable tbody");
+        tbody.innerHTML = "";
+        (data.items_low_in_stock || []).forEach((item) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${item.name}</td>
+            <td>${item.quantity}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
+
+      fetchSummary().then(renderSummary);
+    </script>
+  </body>
+</html>
